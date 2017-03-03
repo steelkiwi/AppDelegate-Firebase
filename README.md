@@ -10,16 +10,12 @@ Example of using Firebase PushMessages in iOS
 pod 'Firebase/Core'
 pod 'Firebase/Messaging'
 ```
-
 2. Add ```GoogleService-Info.plist``` file to your project
-
 3. Copy [AppDelegate+Firebase.swift](https://github.com/steelkiwi/AppDelegate-Firebase/blob/master/AppDelegate+Firebase.swift) file to your project
-
 4. Add next code to your AppDelegate ```didFinishLaunchingWithOptions``` method:
 ```swift
 initNotifications(application: application, mode: .sandbox) // unknown, sandbox, prod
 ```
-
 5. And add this method to your AppDelegate file:
 ```swift
 internal func openNotification(userData: PushNotification) {
