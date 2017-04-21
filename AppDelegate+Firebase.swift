@@ -78,7 +78,6 @@ extension AppDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
-        UIApplication.shared.applicationIconBadgeNumber += 1
         openNotification(userData: userInfo)
     }
 }
@@ -87,7 +86,6 @@ extension AppDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        UIApplication.shared.applicationIconBadgeNumber += 1
         let userInfo = notification.request.content.userInfo
         openNotification(userData: userInfo)
         
@@ -95,7 +93,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        UIApplication.shared.applicationIconBadgeNumber += 1
         let userInfo = response.notification.request.content.userInfo
         openNotification(userData: userInfo)
         
