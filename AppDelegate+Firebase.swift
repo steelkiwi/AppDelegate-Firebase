@@ -9,18 +9,18 @@
 import UserNotifications
 import Firebase
 
-private var pushMode: FIRInstanceIDAPNSTokenType = .unknown
-
 extension AppDelegate {
     
     typealias PushNotification = [AnyHashable : Any]
     
-    internal func initNotifications(application: UIApplication, mode: FIRInstanceIDAPNSTokenType) {
-        
-        pushMode = mode
+    internal func initNotifications(application: UIApplication) {
         
         if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound], completionHandler: { (_, _) in })
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+                guard granted else { return }
+                
+                self.getNotificationSettings()
+            }
             UNUserNotificationCenter.current().delegate = self
         } else {
             let settings: UIUserNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
@@ -30,44 +30,17 @@ extension AppDelegate {
         application.registerForRemoteNotifications()
         
         FIRApp.configure()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(tokenRefreshNotification), name: .firInstanceIDTokenRefresh, object: nil)
+        Messaging.messaging().delegate = self
     }
     
-    func tokenRefreshNotification(notification: NSNotification) {
-        if let refreshedToken = FIRInstanceID.instanceID().token() {
-            #if DEBUG
-                print("InstanceID token: \(refreshedToken)")
-            #endif
-        }
-        
-        connectToFcm()
-    }
-    
-    func connectToFcm() {
-        guard FIRInstanceID.instanceID().token() != nil else { return }
-        
-        FIRMessaging.messaging().disconnect()
-        
-        FIRMessaging.messaging().connect(completion: { (error) in
-            if error != nil {
-                print("Unable to connect with FCM. \(error)")
-            } else {
-                print("Connected to FCM.")
+    private func getNotificationSettings() {
+        UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+            guard settings.authorizationStatus == .authorized else { return }
+            
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
             }
-        })
-    }
-    
-    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
-        if notificationSettings.types != .none {
-            application.registerForRemoteNotifications()
         }
-    }
-    
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print(deviceToken)
-        
-        FIRInstanceID.instanceID().setAPNSToken(deviceToken, type: pushMode)
     }
     
     func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
@@ -79,6 +52,13 @@ extension AppDelegate {
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
         openNotification(userData: userInfo)
+    }
+}
+
+extension AppDelegate: MessagingDelegate {
+    
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+        // TODO: Store token
     }
 }
 

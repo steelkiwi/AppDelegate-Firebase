@@ -13,10 +13,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        initNotifications(application: application, mode: .sandbox) // unknown, sandbox, prod
+        initNotifications(application: application)
         
         return true
     }
@@ -24,11 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Push Notifications
     
     internal func openNotification(userData: PushNotification) {
-        
-        // open push notifications only from bg state
-        guard application.applicationState != .active else {
-            return
-        }
         
         // Push handling here
     }
