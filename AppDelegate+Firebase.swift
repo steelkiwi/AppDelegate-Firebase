@@ -29,7 +29,7 @@ extension AppDelegate {
         
         application.registerForRemoteNotifications()
         
-        FIRApp.configure()
+        FirebaseApp.configureIfNeeded()
         Messaging.messaging().delegate = self
     }
     
@@ -69,7 +69,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         let userInfo = notification.request.content.userInfo
         openNotification(userData: userInfo)
         
-        completionHandler([])
+        let displayOptions: UNNotificationPresentationOptions = [] // badge, alert, sound
+        
+        completionHandler(displayOptions)
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -77,5 +79,18 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         openNotification(userData: userInfo)
         
         completionHandler()
+    }
+}
+
+extension FirebaseApp {
+    
+    static var isConfigured: Bool {
+        return FirebaseApp.app() != nil
+    }
+    
+    static func configureIfNeeded() {
+        guard isConfigured == false else { return }
+        
+        configure()
     }
 }
